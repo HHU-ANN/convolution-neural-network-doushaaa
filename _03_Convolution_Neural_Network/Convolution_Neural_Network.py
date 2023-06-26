@@ -1,14 +1,10 @@
 # 在该文件NeuralNetwork类中定义你的模型 
 # 在自己电脑上训练好模型，保存参数，在这里读取模型参数（不要使用JIT读取），在main中返回读取了模型参数的模型
 
-# 在该文件NeuralNetwork类中定义你的模型
-# 在自己电脑上训练好模型，保存参数，在这里读取模型参数（不要使用JIT读取），在main中返回读取了模型参数的模型
-
 import os
+
 os.system("sudo pip3 install torch")
 os.system("sudo pip3 install torchvision")
-
-
 
 # !/usr/bin/python3
 # -*- coding:utf-8 -*-
@@ -84,6 +80,7 @@ import torchvision
 from torchvision import transforms
 # 定义使用GPU
 from torch.utils.data import DataLoader
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 设置超参数
@@ -92,52 +89,44 @@ batch_size = 256
 lr = 0.01
 
 transform = transforms.Compose([
-    transforms.Resize([32,32]),
+    transforms.Resize([32, 32]),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     # transforms.Normalize(mean=[.5,.5,.5],std=[.5,.5,.5]),
-    ])
+])
 
-train_dataset = torchvision.datasets.CIFAR10(root='./data',transform=transform)
+train_dataset = torchvision.datasets.CIFAR10(root='./data', transform=transform, download=True)
+val_dataset = torchvision.datasets.CIFAR10(root='./data', train=False, transform=transform, download=True)
 # print(train_dataset[0])
 train_loader = DataLoader(train_dataset,
                           batch_size=batch_size,
-                          shuffle = True,)
+                          shuffle=True, )
+val_loader = DataLoader(val_dataset, batch_size=512, shuffle=False)
 net = NeuralNetwork().cuda(device)
 loss_func = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(),lr=lr,momentum=0.9)
+optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9)
 
 train_loss = []
 for epoch in range(epochs):
     sum_loss = 0
-    for batch_idx,(x,y) in enumerate(train_loader):
+    for batch_idx, (x, y) in enumerate(train_loader):
         x = x.to(device)
         y = y.to(device)
         pred = net(x)
 
         optimizer.zero_grad()
-        loss = loss_func(pred,y)
+        loss = loss_func(pred, y)
         loss.backward()
         optimizer.step()
         sum_loss += loss.item()
         train_loss.append(loss.item())
-        print(["epoch:%d , batch:%d , loss:%.3f" %(epoch,batch_idx,loss.item())])
-    torch.save(net.state_dict(), 'model.pth')
+        print(["epoch:%d , batch:%d , loss:%.3f" % (epoch, batch_idx, loss.item())])
+    torch.save(net.state_dict(), r'C:\Users\11620\convolution-neural-network-doushaaa\pth\model.pth')
 
-
-def read_data():
-    # 这里可自行修改数据预处理，batch大小也可自行调整
-    # 保持本地训练的数据读取和这里一致
-    dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True, transform=torchvision.transforms.ToTensor())
-    dataset_val = torchvision.datasets.CIFAR10(root='../data/exp03', train=False, download=False, transform=torchvision.transforms.ToTensor())
-    data_loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
-    data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
-    return dataset_train, dataset_val, data_loader_train, data_loader_val
 
 def main():
-    model = NeuralNetwork() # 若有参数则传入参数
+    model = NeuralNetwork()  # 若有参数则传入参数
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
     model.load_state_dict(torch.load(parent_dir + '/pth/model.pth'))
     return model
-    
