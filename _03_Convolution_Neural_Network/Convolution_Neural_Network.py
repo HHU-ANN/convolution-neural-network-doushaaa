@@ -8,7 +8,6 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision import datasets
-from tqdm import tqdm
 import torchvision
 
 '''定义超参数'''
@@ -138,7 +137,7 @@ for epoch in range(num_epoches):
     print('*' * 25, 'epoch {}'.format(epoch + 1), '*' * 25)  # .format为输出格式，formet括号里的即为左边花括号的输出
     running_loss = 0.0
     running_acc = 0.0
-    for i, data in tqdm(enumerate(train_loader, 1)):
+    for i, data in enumerate(train_loader, 1):
 
         img, label = data
         # cuda
@@ -201,3 +200,5 @@ def main():
     parent_dir = os.path.dirname(current_dir)
     model.load_state_dict(torch.load(parent_dir + '/pth/model.pth'))
     return model
+
+
