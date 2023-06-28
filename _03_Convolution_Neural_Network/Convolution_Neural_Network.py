@@ -11,14 +11,10 @@ import time
 import torchvision
 from torchvision import datasets
 
-import torch
-from torch.autograd import Variable
-import numpy as np
-import matplotlib.pyplot as plt
-from torch import nn,optim
-from torch.utils.data import DataLoader
-from torchvision import datasets,transforms
-import torch
+
+from torch import optim
+
+
 
 
 # 定义Alexnet网路结构
