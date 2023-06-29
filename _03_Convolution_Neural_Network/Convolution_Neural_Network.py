@@ -2,15 +2,9 @@ import os
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
-from torchvision import datasets,transforms
+from torchvision import transforms
 import torch.nn as nn
-import torch.nn.functional as F
-import time
 import torchvision
-from torchvision import datasets
-
-
-from torch import optim
 
 
 # 定义Alexnet网路结构
@@ -69,7 +63,7 @@ class NeuralNetwork(nn.Module):
 def read_data():
     # 这里可自行修改数据预处理，batch大小也可自行调整
     # 保持本地训练的数据读取和这里一致
-    dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True, transform=torchvision.transforms.ToTensor())
+    dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=False, transform=torchvision.transforms.ToTensor())
     dataset_val = torchvision.datasets.CIFAR10(root='../data/exp03', train=False, download=False, transform=torchvision.transforms.ToTensor())
     data_loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
     data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
