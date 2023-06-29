@@ -71,7 +71,7 @@ def read_data():
     data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
     return dataset_train, dataset_val, data_loader_train, data_loader_val
 
-dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=False,
+dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True,
                                              transform=torchvision.transforms.ToTensor())
 dataset_val = torchvision.datasets.CIFAR10(root='../data/exp03', train=False, download=False,
                                            transform=torchvision.transforms.ToTensor())
