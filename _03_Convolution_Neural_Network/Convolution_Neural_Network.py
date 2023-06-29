@@ -15,8 +15,6 @@ from torchvision import datasets
 from torch import optim
 
 
-
-
 # 定义Alexnet网路结构
 class NeuralNetwork(nn.Module):
     def __init__(self, width_mult=1):
@@ -70,18 +68,14 @@ class NeuralNetwork(nn.Module):
 
         return x
 
-# 设置超参数
-epochs = 5
-batch_size = 256
-lr = 0.01
-
-transform = transforms.Compose([
-    transforms.Resize([32,32]),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    # transforms.Normalize(mean=[.5,.5,.5],std=[.5,.5,.5]),
-    ])
-
+def read_data():
+    # 这里可自行修改数据预处理，batch大小也可自行调整
+    # 保持本地训练的数据读取和这里一致
+    dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True, transform=torchvision.transforms.ToTensor())
+    dataset_val = torchvision.datasets.CIFAR10(root='../data/exp03', train=False, download=False, transform=torchvision.transforms.ToTensor())
+    data_loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
+    data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
+    return dataset_train, dataset_val, data_loader_train, data_loader_val
 
 dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True,
                                              transform=torchvision.transforms.ToTensor())
@@ -91,20 +85,21 @@ data_loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=Tr
 data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
 
 
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-else:
-    device = torch.device("cpu")
-model = NeuralNetwork().cuda(device)
+# 设置超参数
+epochs = 5
+batch_size = 256
+lr = 0.01
+model = NeuralNetwork()
 loss_func = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(),lr=lr,momentum=0.9)
 
 train_loss = []
+model.train()
 for epoch in range(epochs):
     sum_loss = 0
     for batch_idx,(x,y) in enumerate(data_loader_train):
-        x = x.to(device)
-        y = y.to(device)
+        x = x
+        y = y
         pred = model(x)
 
         optimizer.zero_grad()
@@ -118,14 +113,20 @@ for epoch in range(epochs):
 torch.save(model.state_dict(), r'C:\Users\11620\convolution-neural-network-doushaaa\pth\model.pth')
 
 
-def read_data():
-    # 这里可自行修改数据预处理，batch大小也可自行调整
-    # 保持本地训练的数据读取和这里一致
-    dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True, transform=torchvision.transforms.ToTensor())
-    dataset_val = torchvision.datasets.CIFAR10(root='../data/exp03', train=False, download=False, transform=torchvision.transforms.ToTensor())
-    data_loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
-    data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
-    return dataset_train, dataset_val, data_loader_train, data_loader_val
+#测试
+model.eval()
+with torch.no_grad():
+    correct = 0
+    total = 0
+    for data, targets in data_loader_val:
+        outputs = model(data)
+        _, predicted = torch.max(outputs.data, 1)
+        total += targets.size(0)
+        correct += (predicted == targets).sum().item()
+
+    accuracy = 100 * correct / total
+    print(f'Test Accuracy: {accuracy:.2f}%')
+
 
 def main():
     model = NeuralNetwork()  # 若有参数则传入参数
@@ -133,4 +134,6 @@ def main():
     parent_dir = os.path.dirname(current_dir)
     model.load_state_dict(torch.load(parent_dir + '/pth/model.pth'))
     return model
+
+
 
