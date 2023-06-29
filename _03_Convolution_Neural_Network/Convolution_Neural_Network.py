@@ -5,6 +5,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import torch.nn as nn
 import torchvision
+import torch.optim as optim
+
 
 
 # 定义Alexnet网路结构
