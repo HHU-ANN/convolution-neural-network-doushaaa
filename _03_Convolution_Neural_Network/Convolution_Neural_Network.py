@@ -1,6 +1,4 @@
 import os
-os.system("sudo pip3 install torch")
-os.system("sudo pip3 install torchvision")
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
