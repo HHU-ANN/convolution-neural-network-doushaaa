@@ -1,11 +1,9 @@
 import os
 import torch
-import numpy as np
+
 from torch.utils.data import DataLoader
-from torchvision import transforms
 import torch.nn as nn
 import torchvision
-import torch.optim as optim
 
 
 
@@ -65,59 +63,12 @@ class NeuralNetwork(nn.Module):
 def read_data():
     # 这里可自行修改数据预处理，batch大小也可自行调整
     # 保持本地训练的数据读取和这里一致
+    dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True, transform=torchvision.transforms.ToTensor())
     dataset_val = torchvision.datasets.CIFAR10(root='../data/exp03', train=False, download=False, transform=torchvision.transforms.ToTensor())
+    data_loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
     data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
     return dataset_train, dataset_val, data_loader_train, data_loader_val
 
-dataset_train = torchvision.datasets.CIFAR10(root='../data/exp03', train=True, download=True,
-                                             transform=torchvision.transforms.ToTensor())
-dataset_val = torchvision.datasets.CIFAR10(root='../data/exp03', train=False, download=False,
-                                           transform=torchvision.transforms.ToTensor())
-data_loader_train = DataLoader(dataset=dataset_train, batch_size=256, shuffle=True)
-data_loader_val = DataLoader(dataset=dataset_val, batch_size=256, shuffle=False)
-
-
-# 设置超参数
-epochs = 5
-batch_size = 256
-lr = 0.01
-model = NeuralNetwork()
-loss_func = nn.CrossEntropyLoss()
-optimizer = optim.SGD(model.parameters(),lr=lr,momentum=0.9)
-
-train_loss = []
-model.train()
-for epoch in range(epochs):
-    sum_loss = 0
-    for batch_idx,(x,y) in enumerate(data_loader_train):
-        x = x
-        y = y
-        pred = model(x)
-
-        optimizer.zero_grad()
-        loss = loss_func(pred,y)
-        loss.backward()
-        optimizer.step()
-        sum_loss += loss.item()
-        train_loss.append(loss.item())
-        print(["epoch:%d , batch:%d , loss:%.3f" %(epoch,batch_idx,loss.item())])
-
-torch.save(model.state_dict(), r'C:\Users\11620\convolution-neural-network-doushaaa\pth\model.pth')
-
-
-#测试
-model.eval()
-with torch.no_grad():
-    correct = 0
-    total = 0
-    for data, targets in data_loader_val:
-        outputs = model(data)
-        _, predicted = torch.max(outputs.data, 1)
-        total += targets.size(0)
-        correct += (predicted == targets).sum().item()
-
-    accuracy = 100 * correct / total
-    print(f'Test Accuracy: {accuracy:.2f}%')
 
 
 def main():
@@ -126,6 +77,3 @@ def main():
     parent_dir = os.path.dirname(current_dir)
     model.load_state_dict(torch.load(parent_dir + '/pth/model.pth'))
     return model
-
-
-
